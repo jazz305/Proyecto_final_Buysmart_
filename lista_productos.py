@@ -14,7 +14,6 @@ def agregar_a_lista(nombre_var, cantidad_var, precio_var, lista_productos_box, t
             
         # Calculamos el subtotal del item a ingresar
         subtotal = cantidad * precio
-        # Formato del item a mostrar en el Listbox: "Nombre | Cantidad x Precio = Subtotal
         item_para_lista = f"{nombre:<15} | {cantidad} x {precio:.2f} = {subtotal:.2f}"
         
         lista_productos_box.insert(tk.END, item_para_lista)
@@ -23,28 +22,23 @@ def agregar_a_lista(nombre_var, cantidad_var, precio_var, lista_productos_box, t
         nombre_var.set("")
         cantidad_var.set("")
         precio_var.set("")
-        # Recalculamos el total general 
         calcular_total_lista(lista_productos_box, total_general_label)
 
     except ValueError:
-        messagebox.showerror("Error en la entrada", "Asegurese de que Nombre, Cantidad (>0) y Precio (>0) sean validos.")
+        messagebox.showerror("Error", "Asegurese de que los datos ingresados sean validos.")
 
 # Creamos una funcion para calcular el total de TODOS los productos en el Listbox
 def calcular_total_lista(lista_productos_box, total_general_label):
     total_general = 0.0
     
-    # Iteraramos sobre todos los elementos del Listbox
     for i in range(lista_productos_box.size()):
         item = lista_productos_box.get(i)
         
-        # El subtotal es el valor despues del signo "="
         try:
-            # Buscar el subtotal (el ultimo valor despues del "=")
             partes = item.split("=")
             subtotal = float(partes[-1].strip())
             total_general += subtotal
         except (ValueError, IndexError):
-            # Ignoramos items que no tienen el formato esperado
             continue
     
     total_general_label.config(text=f"Total de la Lista: gs {total_general:.2f}")
@@ -103,19 +97,14 @@ def ventana_lista():
     
     # --- Estructura principal ---
     
-    # Frame para los campos de entrada (izquierda)
     input_frame = tk.Frame(v, bg="#f1f1f1")
     input_frame.place(x=10, y=10) 
 
-    # Frame para el Listbox y el Total (derecha)
     display_frame = tk.Frame(v, bg="#f1f1f1")
     display_frame.place(x=260, y=10) 
     
-    # Frame para los botones de accion (abajo)
     button_frame = tk.Frame(v, bg="#f1f1f1")
     button_frame.place(relx=0.5, rely=0.85, anchor=tk.CENTER)
-    
-    # --- Widgets en el Frame de Entrada (grid) ---
     
     # Etiquetas y Campos de entrada
     row_idx = 0
@@ -140,30 +129,21 @@ def ventana_lista():
               command=lambda: agregar_a_lista(nombre_var, cantidad_var, precio_var, lista_productos_box, total_general_label),
               width=15).grid(row=row_idx, column=0, columnspan=2, pady=10)
     
-    # --- Widgets en el Frame de Visualizacion (Listbox y Total) ---
-    
-    # Listbox para los productos
     lista_productos_box = tk.Listbox(display_frame, width=35, height=10, bd=2, relief=tk.SOLID)
     lista_productos_box.pack(pady=5, padx=5)
     
-    # Label para el Total General de la lista (simula la caja de total del boceto)
     total_general_label = tk.Label(display_frame, text="Total de la Lista: gs 0.00", bg="white", 
                                    relief=tk.SUNKEN, anchor="w", width=35, font=("Arial", 10, "bold"))
     total_general_label.pack(pady=5, padx=5)
+
     
-    # --- Widgets en el Frame de Botones de Accion (pack) ---
-    
-    # Boton Calcular Total (Recalcula el total de la lista)
     tk.Button(button_frame, text="Calcular Total", width=12, 
               command=lambda: calcular_total_lista(lista_productos_box, total_general_label)).pack(side=tk.LEFT, padx=5)
     
-    # Boton Nuevo (Limpia todos los campos e inicia una lista nueva)
     tk.Button(button_frame, text="Nuevo", width=12, 
               command=lambda: nueva_lista(fecha_var, nombre_var, cantidad_var, precio_var, lista_productos_box, total_general_label)).pack(side=tk.LEFT, padx=5)
     
-    # Boton Guardar
     tk.Button(button_frame, text="Guardar", width=12, 
               command=lambda: guardar_lista(fecha_var, lista_productos_box, total_general_label)).pack(side=tk.LEFT, padx=5)
     
-    # Boton Salir
     tk.Button(button_frame, text="Salir", width=12, command=v.destroy).pack(side=tk.LEFT, padx=5)
