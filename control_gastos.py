@@ -1,24 +1,84 @@
 import tkinter as tk
+from tkinter import messagebox
+from datetime import date
+
+# Creamos una funcion para guardar los datos de ingreso y egreso en un archivo .txt
+def guardar_movimiento(fecha_var, ingreso_var, egreso_var):
+    fecha = fecha_var.get()
+    ingreso = ingreso_var.get()
+    egreso = egreso_var.get()
+
+    if not ingreso and not egreso:
+        messagebox.showwarning("Debe ingresar un valor para Ingreso o Egreso.")
+        return
+   
+    try:
+        if ingreso:
+            float(ingreso)
+        if egreso:
+            float(egreso)
+    except ValueError:
+        messagebox.showerror("Error", "Ingreso y Egreso deben ser números válidos.")
+        return
+    
+    try:
+        
+        linea = f"Fecha: {fecha} | Ingreso: {ingreso if ingreso else '0'} | Egreso: {egreso if egreso else '0'}\n"
+
+        with open("control_gastos.txt", "a") as archivo:
+            archivo.write(linea)
+
+        messagebox.showinfo("Bien!", "Movimiento guardado correctamente en control_gastos.txt")
+        
+    except Exception as e:
+        messagebox.showerror("Error", f"Ocurrió un error al guardar: {e}")
+
+# Creamos una funcion para limpiar los campos
+def limpiar_campos(fecha_var, ingreso_var, egreso_var):
+    # Restablecer la fecha actual
+    fecha_actual = date.today().strftime("%d/%m/%Y")
+    fecha_var.set(fecha_actual)
+    
+    ingreso_var.set("")
+    egreso_var.set("")
+
 
 def ventana_control():
     v = tk.Toplevel()
     v.title("Control de Gastos")
-    v.geometry("350x200")
+    v.geometry("350x250")
+    v.resizable(False, False)
     v.configure(bg="#f1f1f1")
 
-    tk.Label(v, text="Control de Gastos", font=("Arial",14,"bold"), bg="#f1f1f1").pack(pady=10)
-    tk.Label(v, text="Maneja tsu gastos personales", font=("Arial", 14, "bold")).pack(pady=10)
-
-    #Campos
-    tk.Label(v, text="Ingreso:", bg="#f1f1f1").pack()
-    tk.Entry(v, width=30).pack(pady=5)
-
-    tk.Label(v, text="Egreso:", bg="#f1f1f1").pack()
-    tk.Entry(v, width=30).pack(pady=5)
-
-    tk.Label(v, text="Fecha:", bg="#f1f1f1").pack()
-    tk.Entry(v, width=30).pack(pady=5)
-
-    tk.Button(v, text="Agregar",width=15 ,bg="#90ee90").pack(pady=15)
-    tk.Button(v, text="Guardar", width=15, bg="#90ee90").pack(pady=10)
-    tk.Button(v, text="Atrás", width=15, bg="#ff9999", command=v.destroy).pack(pady=5)
+    fecha_var = tk.StringVar(value=date.today().strftime("%d/%m/%Y")) # Fecha automática
+    ingreso_var = tk.StringVar()
+    egreso_var = tk.StringVar()
+    
+    # --- Estructura principal ---
+    
+    form_frame = tk.Frame(v, bg="#f1f1f1")
+    form_frame.pack(pady=20) 
+    
+    # Etiquetas y Campos de entrada usando grid
+    row_idx = 0
+    tk.Label(form_frame, text="Fecha:", bg="#f1f1f1").grid(row=row_idx, column=0, sticky="w", pady=5, padx=5)
+    tk.Entry(form_frame, textvariable=fecha_var, width=20, state="readonly").grid(row=row_idx, column=1, pady=5, padx=5) # Fecha readonly
+    
+    row_idx += 1
+    tk.Label(form_frame, text="Ingreso:", bg="#f1f1f1").grid(row=row_idx, column=0, sticky="w", pady=5, padx=5)
+    tk.Entry(form_frame, textvariable=ingreso_var, width=20).grid(row=row_idx, column=1, pady=5, padx=5)
+    
+    row_idx += 1
+    tk.Label(form_frame, text="Egreso:", bg="#f1f1f1").grid(row=row_idx, column=0, sticky="w", pady=5, padx=5)
+    tk.Entry(form_frame, textvariable=egreso_var, width=20).grid(row=row_idx, column=1, pady=5, padx=5)
+    
+    button_frame = tk.Frame(v, bg="#f1f1f1")
+    button_frame.pack(pady=20) 
+    
+    tk.Button(button_frame, text="Nuevo", width=10, 
+              command=lambda: limpiar_campos(fecha_var, ingreso_var, egreso_var)).pack(side=tk.LEFT, padx=5)
+    
+    tk.Button(button_frame, text="Guardar", width=10, 
+              command=lambda: guardar_movimiento(fecha_var, ingreso_var, egreso_var)).pack(side=tk.LEFT, padx=5)
+    
+    tk.Button(button_frame, text="Salir", width=10, command=v.destroy).pack(side=tk.LEFT, padx=5)
