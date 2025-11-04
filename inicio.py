@@ -43,6 +43,6 @@ descripcion.pack(pady=(0,20))
 tk.Button(ventana, text="Lista de Productos", width=25, height=2, command=abrir_lista).pack(pady=5)
 tk.Button(ventana, text="Control de Gastos", width=25, height=2, command=abrir_control).pack(pady=5)
 tk.Button(ventana, text="Ver Resumen", width=25, height=2, command=abrir_resumen).pack(pady=5)
-tk.Button(ventana, text="Salir", width=25, height=2,bg="#ff5c5c",fg="white" ,command=salir).pack(pady=20)
+tk.Button(ventana, text="Salir", width=25, height=2,bg="#ff5c5c",fg="white" ,command=ventana.destroy).pack(pady=20)
 
 ventana.mainloop()
