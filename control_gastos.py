@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from datetime import date
+import os   # ← agregado para guardar en la carpeta del proyecto
 
 # Creamos una funcion para guardar los datos de ingreso y egreso en un archivo .txt
 def guardar_movimiento(fecha_var, ingreso_var, egreso_var):
@@ -11,7 +12,7 @@ def guardar_movimiento(fecha_var, ingreso_var, egreso_var):
     if not ingreso and not egreso:
         messagebox.showwarning("Debe ingresar un valor para Ingreso o Egreso.")
         return
-   
+       
     try:
         if ingreso:
             float(ingreso)
@@ -22,10 +23,12 @@ def guardar_movimiento(fecha_var, ingreso_var, egreso_var):
         return
     
     try:
-        
         linea = f"Fecha: {fecha} | Ingreso: {ingreso if ingreso else '0'} | Egreso: {egreso if egreso else '0'}\n"
 
-        with open("control_gastos.txt", "a") as archivo:
+        # Guardar siempre en la carpeta del proyecto
+        ruta_archivo = os.path.join(os.path.dirname(__file__), "control_gastos.txt")
+
+        with open(ruta_archivo, "a", encoding="utf-8") as archivo:
             archivo.write(linea)
 
         messagebox.showinfo("Bien!", "Movimiento guardado correctamente en control_gastos.txt")
