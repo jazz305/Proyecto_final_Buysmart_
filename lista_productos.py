@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from datetime import date
+import os   # ← agregado para manejar la ruta del archivo
 
 # Creamos una funcion para agregar el producto actual al Listbox y limpiar campos
 def agregar_a_lista(nombre_var, cantidad_var, precio_var, lista_productos_box, total_general_label):
@@ -47,14 +48,17 @@ def calcular_total_lista(lista_productos_box, total_general_label):
 # Creamos una funcion para guardar la lista completa en un archivo .txt
 def guardar_lista(fecha_var, lista_productos_box, total_general_label):
     fecha = fecha_var.get()
-    total_final = total_general_label.cget("text").split("gs. ")[-1]
+    total_final = total_general_label.cget("text").split("gs ")[-1]
     
     if lista_productos_box.size() == 0:
         messagebox.showwarning("No hay productos para guardar en la lista")
         return
 
     try:
-        with open("lista_de_compras.txt", "a") as archivo:
+        # Guardar SIEMPRE en la carpeta del proyecto
+        ruta_archivo = os.path.join(os.path.dirname(__file__), "lista_de_compras.txt")
+
+        with open(ruta_archivo, "a", encoding="utf-8") as archivo:
             archivo.write("="*40 + "\n")
             archivo.write(f"Lista de Compras - Fecha: {fecha}\n")
             archivo.write("-" * 40 + "\n")
@@ -64,7 +68,7 @@ def guardar_lista(fecha_var, lista_productos_box, total_general_label):
                 archivo.write(lista_productos_box.get(i) + "\n")
                 
             archivo.write("-" * 40 + "\n")
-            archivo.write(f"TOTAL FINAL DE LA LISTA: gs. {total_final}\n")
+            archivo.write(f"TOTAL FINAL DE LA LISTA: gs {total_final}\n")
             archivo.write("="*40 + "\n\n")
 
         messagebox.showinfo("Bien!", f"Lista de {lista_productos_box.size()} productos guardada en lista_de_compras.txt")
@@ -89,7 +93,7 @@ def ventana_lista():
     v.geometry("500x350")
     v.configure(bg="#f1f1f1")
 
-# Variables de control
+    # Variables de control
     fecha_var = tk.StringVar(value=date.today().strftime("%d/%m/%Y"))
     nombre_var = tk.StringVar()
     cantidad_var = tk.StringVar()
