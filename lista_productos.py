@@ -23,13 +23,13 @@ def agregar_a_lista(nombre_var, cantidad_var, precio_var, lista_productos_box, t
         precio_var.set("")
         calcular_total_lista(lista_productos_box, total_general_label)
 
-        #Cursor vuelve a la primera casilla
+        # Cursor vuelve a la primera casilla
         nombre_entry.focus_set()
 
     except ValueError:
         messagebox.showerror("Error", "Asegurese de que los datos ingresados sean validos.")
 
-#Creamos una funcion para calcular el total de la lista
+# Creamos una funcion para calcular el total de la lista
 def calcular_total_lista(lista_productos_box, total_general_label):
     total_general = 0.0
     
@@ -44,8 +44,10 @@ def calcular_total_lista(lista_productos_box, total_general_label):
     
     total_general_label.config(text=f"Total de la Lista: gs {total_general:.2f}")
     return total_general
-#Creamos la funcion para guardar la lista
-def guardar_lista(fecha_var, lista_productos_box, total_general_label):
+
+# Creamos la funcion para guardar la lista
+def guardar_lista(fecha_var, lista_productos_box, total_general_label,
+                  nombre_entry, cantidad_entry, precio_entry, btn_agregar):
     fecha = fecha_var.get()
     total_final = total_general_label.cget("text").split("gs ")[-1]
     
@@ -69,12 +71,20 @@ def guardar_lista(fecha_var, lista_productos_box, total_general_label):
             archivo.write("="*40 + "\n\n")
 
         messagebox.showinfo("Bien!", f"Lista de {lista_productos_box.size()} productos guardada en lista_de_compras.txt")
-        
+
+        # Deshabilitar campos luego de guardar
+        nombre_entry.config(state="disabled")
+        cantidad_entry.config(state="disabled")
+        precio_entry.config(state="disabled")
+        btn_agregar.config(state="disabled")
+
     except Exception as e:
         messagebox.showerror("Error", f"Ocurrio un error al guardar: {e}")
 
 # Funcion NUEVA lista
-def nueva_lista(fecha_var, nombre_var, cantidad_var, precio_var, lista_productos_box, total_general_label, nombre_entry):
+def nueva_lista(fecha_var, nombre_var, cantidad_var, precio_var,
+                lista_productos_box, total_general_label,
+                nombre_entry, cantidad_entry, precio_entry, btn_agregar):
     fecha_actual = date.today().strftime("%d/%m/%Y")
     fecha_var.set(fecha_actual)
     nombre_var.set("")
@@ -83,10 +93,16 @@ def nueva_lista(fecha_var, nombre_var, cantidad_var, precio_var, lista_productos
     lista_productos_box.delete(0, tk.END)
     total_general_label.config(text="Total de la Lista: gs 0.00")
 
+    # Habilitar campos
+    nombre_entry.config(state="normal")
+    cantidad_entry.config(state="normal")
+    precio_entry.config(state="normal")
+    btn_agregar.config(state="normal")
+
     # Cursor a la primera casilla
     nombre_entry.focus_set()
 
-#Interfaz de la ventana
+# Interfaz de la ventana
 def ventana_lista():
     v = tk.Toplevel()
     v.title("Lista de Productos")
@@ -113,28 +129,32 @@ def ventana_lista():
     
     row_idx += 1
     tk.Label(input_frame, text="Nombre del Producto:", bg="#f1f1f1").grid(row=row_idx, column=0, sticky="w", pady=5, padx=5)
-    nombre_entry = tk.Entry(input_frame, textvariable=nombre_var, width=20)
+    nombre_entry = tk.Entry(input_frame, textvariable=nombre_var, width=20, state="disabled")
     nombre_entry.grid(row=row_idx, column=1, pady=5, padx=5)
     
     row_idx += 1
     tk.Label(input_frame, text="Cantidad:", bg="#f1f1f1").grid(row=row_idx, column=0, sticky="w", pady=5, padx=5)
-    tk.Entry(input_frame, textvariable=cantidad_var, width=20).grid(row=row_idx, column=1, pady=5, padx=5)
+    cantidad_entry = tk.Entry(input_frame, textvariable=cantidad_var, width=20, state="disabled")
+    cantidad_entry.grid(row=row_idx, column=1, pady=5, padx=5)
     
     row_idx += 1
     tk.Label(input_frame, text="Precio:", bg="#f1f1f1").grid(row=row_idx, column=0, sticky="w", pady=5, padx=5)
-    tk.Entry(input_frame, textvariable=precio_var, width=20).grid(row=row_idx, column=1, pady=5, padx=5)
+    precio_entry = tk.Entry(input_frame, textvariable=precio_var, width=20, state="disabled")
+    precio_entry.grid(row=row_idx, column=1, pady=5, padx=5)
     
     row_idx += 1
-    tk.Button(
+    btn_agregar = tk.Button(
         input_frame,
         text="Agregar a Lista",
         width=15,
+        state="disabled",
         command=lambda: agregar_a_lista(
             nombre_var, cantidad_var, precio_var,
             lista_productos_box, total_general_label,
             nombre_entry
         )
-    ).grid(row=row_idx, column=0, columnspan=2, pady=10)
+    )
+    btn_agregar.grid(row=row_idx, column=0, columnspan=2, pady=10)
     
     lista_productos_box = tk.Listbox(display_frame, width=35, height=10, bd=2, relief=tk.SOLID)
     lista_productos_box.pack(pady=5, padx=5)
@@ -164,7 +184,7 @@ def ventana_lista():
         command=lambda: nueva_lista(
             fecha_var, nombre_var, cantidad_var, precio_var,
             lista_productos_box, total_general_label,
-            nombre_entry
+            nombre_entry, cantidad_entry, precio_entry, btn_agregar
         )
     ).pack(side=tk.LEFT, padx=5)
     
@@ -172,10 +192,10 @@ def ventana_lista():
         button_frame,
         text="Guardar",
         width=12,
-        command=lambda: guardar_lista(fecha_var, lista_productos_box, total_general_label)
+        command=lambda: guardar_lista(
+            fecha_var, lista_productos_box, total_general_label,
+            nombre_entry, cantidad_entry, precio_entry, btn_agregar
+        )
     ).pack(side=tk.LEFT, padx=5)
     
     tk.Button(button_frame, text="Salir", width=12, command=v.destroy).pack(side=tk.LEFT, padx=5)
-
-    #foco inicial
-    nombre_entry.focus_set()
