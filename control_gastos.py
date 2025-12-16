@@ -4,7 +4,8 @@ from datetime import date
 import os
 
 #Funcion Guardar movimiento
-def guardar_movimiento(fecha_var, ingreso_var, egreso_var, ingreso_entry):
+def guardar_movimiento(fecha_var, ingreso_var, egreso_var,
+                       ingreso_entry, egreso_entry):
     fecha = fecha_var.get()
     ingreso = ingreso_var.get()
     egreso = egreso_var.get()
@@ -32,20 +33,27 @@ def guardar_movimiento(fecha_var, ingreso_var, egreso_var, ingreso_entry):
 
         messagebox.showinfo("Bien!", "Movimiento guardado correctamente en control_gastos.txt")
 
-        # cursor vuelve a la primera casilla (Ingreso)
         ingreso_var.set("")
         egreso_var.set("")
-        ingreso_entry.focus_set()
+
+        # deshabilitar campos luego de guardar
+        ingreso_entry.config(state="disabled")
+        egreso_entry.config(state="disabled")
         
     except Exception as e:
         messagebox.showerror("Error", f"Ocurrió un error al guardar: {e}")
 
 #Funcion limpiar campos
-def limpiar_campos(fecha_var, ingreso_var, egreso_var, ingreso_entry):
+def limpiar_campos(fecha_var, ingreso_var, egreso_var,
+                   ingreso_entry, egreso_entry):
     fecha_actual = date.today().strftime("%d/%m/%Y")
     fecha_var.set(fecha_actual)
     ingreso_var.set("")
     egreso_var.set("")
+
+    # habilitar campos
+    ingreso_entry.config(state="normal")
+    egreso_entry.config(state="normal")
 
     # cursor a la primera casilla (Ingreso)
     ingreso_entry.focus_set()
@@ -72,27 +80,32 @@ def ventana_control():
     
     row_idx += 1
     tk.Label(form_frame, text="Ingreso:", bg="#f1f1f1").grid(row=row_idx, column=0, sticky="w", pady=5, padx=5)
-    ingreso_entry = tk.Entry(form_frame, textvariable=ingreso_var, width=20)
+    ingreso_entry = tk.Entry(form_frame, textvariable=ingreso_var, width=20, state="disabled")
     ingreso_entry.grid(row=row_idx, column=1, pady=5, padx=5)
     
     row_idx += 1
     tk.Label(form_frame, text="Egreso:", bg="#f1f1f1").grid(row=row_idx, column=0, sticky="w", pady=5, padx=5)
-    tk.Entry(form_frame, textvariable=egreso_var, width=20).grid(row=row_idx, column=1, pady=5, padx=5)
+    egreso_entry = tk.Entry(form_frame, textvariable=egreso_var, width=20, state="disabled")
+    egreso_entry.grid(row=row_idx, column=1, pady=5, padx=5)
     
     button_frame = tk.Frame(v, bg="#f1f1f1")
     button_frame.pack(pady=20) 
     
     tk.Button(
         button_frame, text="Nuevo", width=10,
-        command=lambda: limpiar_campos(fecha_var, ingreso_var, egreso_var, ingreso_entry)
+        command=lambda: limpiar_campos(
+            fecha_var, ingreso_var, egreso_var,
+            ingreso_entry, egreso_entry
+        )
     ).pack(side=tk.LEFT, padx=5)
     
     tk.Button(
         button_frame, text="Guardar", width=10,
-        command=lambda: guardar_movimiento(fecha_var, ingreso_var, egreso_var, ingreso_entry)
+        command=lambda: guardar_movimiento(
+            fecha_var, ingreso_var, egreso_var,
+            ingreso_entry, egreso_entry
+        )
     ).pack(side=tk.LEFT, padx=5)
     
     tk.Button(button_frame, text="Salir", width=10, command=v.destroy).pack(side=tk.LEFT, padx=5)
 
-    # foco inicial
-    ingreso_entry.focus_set()
